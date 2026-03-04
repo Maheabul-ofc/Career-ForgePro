@@ -38,9 +38,6 @@ npm install
 
 Create a `.env` file inside the `server/` directory:
 
-```bash
-cp .env.example .env
-```
 
 Edit `server/.env` with your values:
 
@@ -188,4 +185,3 @@ Renders optimized resume content into a pixel-perfect, professionally formatted 
 - **CORS issues:** The backend uses `cors()` middleware — ensure frontend points to the correct backend URL in `src/api/index.js`
 - **OpenAI API error:** Check your `OPENAI_API_KEY` is valid and has credits
 - **Stripe error:** Ensure `STRIPE_SECRET_KEY` and `STRIPE_PRO_PRICE_ID` are set correctly
-- **Puppeteer issues:** On Linux, you may need to install additional dependencies — see [Puppeteer troubleshooting](https://pptr.dev/troubleshooting)
