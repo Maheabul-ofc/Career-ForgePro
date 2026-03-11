@@ -59,6 +59,7 @@ OPENAI_MODEL=gpt-4o-mini
 STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
 STRIPE_PRO_PRICE_ID=price_your-stripe-price-id
 FRONTEND_URL=http://localhost:5173
+VITE_API_URL=https://career-forgepro.onrender.com
 ```
 
 ### Generate Secure JWT Secret
