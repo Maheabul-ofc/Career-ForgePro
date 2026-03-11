@@ -13,15 +13,27 @@ const getStripe = () => {
   return stripe;
 };
 
+// Your personal admin email
+const ADMIN_PRO_EMAIL = "admin@careerforge.com";
+
 // POST /api/stripe/create-checkout — Create a Stripe Checkout Session
 router.post("/create-checkout", protect, async (req, res) => {
   try {
-    const s = getStripe();
     const user = req.user;
 
-    // Check if customer exists in Stripe
+    // If it's your account, skip payment
+    if (user.email === ADMIN_PRO_EMAIL) {
+      return res.json({
+        message: "Admin account already has Pro access",
+        adminPro: true,
+      });
+    }
+
+    const s = getStripe();
+
     const customers = await s.customers.list({ email: user.email, limit: 1 });
     let customerId;
+
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
     }
@@ -47,11 +59,22 @@ router.post("/create-checkout", protect, async (req, res) => {
   }
 });
 
-// GET /api/stripe/check-subscription — Check if user has active subscription
+// GET /api/stripe/check-subscription
 router.get("/check-subscription", protect, async (req, res) => {
   try {
-    const s = getStripe();
     const user = req.user;
+
+    // Give your account automatic PRO
+    if (user.email === ADMIN_PRO_EMAIL) {
+      return res.json({
+        subscribed: true,
+        tier: "pro",
+        subscriptionEnd: null,
+        subscriptionId: "admin-pro-access",
+      });
+    }
+
+    const s = getStripe();
 
     const customers = await s.customers.list({ email: user.email, limit: 1 });
 
@@ -60,6 +83,7 @@ router.get("/check-subscription", protect, async (req, res) => {
     }
 
     const customerId = customers.data[0].id;
+
     const subscriptions = await s.subscriptions.list({
       customer: customerId,
       status: "active",
@@ -71,6 +95,7 @@ router.get("/check-subscription", protect, async (req, res) => {
     }
 
     const subscription = subscriptions.data[0];
+
     res.json({
       subscribed: true,
       tier: "pro",
@@ -83,13 +108,22 @@ router.get("/check-subscription", protect, async (req, res) => {
   }
 });
 
-// POST /api/stripe/customer-portal — Create a Customer Portal session
+// POST /api/stripe/customer-portal
 router.post("/customer-portal", protect, async (req, res) => {
   try {
-    const s = getStripe();
     const user = req.user;
 
+    // Admin account doesn't need portal
+    if (user.email === ADMIN_PRO_EMAIL) {
+      return res.json({
+        message: "Admin account does not require billing portal",
+      });
+    }
+
+    const s = getStripe();
+
     const customers = await s.customers.list({ email: user.email, limit: 1 });
+
     if (customers.data.length === 0) {
       return res.status(400).json({ message: "No Stripe customer found" });
     }
